@@ -14,6 +14,7 @@ class dashboard(tk.Tk):
         window.grid_rowconfigure(0, weight=1)
         window.grid_columnconfigure(0, weight=1)
         #print(uname)
+        self.window = window
         self.uname = uname
         self.Buy = Buy
         self.Sell = Sell
@@ -22,15 +23,15 @@ class dashboard(tk.Tk):
         self.MarketWatch = MarketWatch
         self.DashBoard = DashBoard
         self.pages = {}
-        for F in (DashBoard, Buy, Sell, Watchlist, UserWatch, MarketWatch):
-            page = F(window, self)
-            self.pages[F] = page
-            page.grid(row=1, column=1, sticky="nsew")
+        #for F in (DashBoard, Buy, Sell, Watchlist, UserWatch, MarketWatch):
+            #page = F(window, self)
+            #self.pages[F] = page
+            #page.grid(row=1, column=1, sticky="nsew")
         self.display_page(DashBoard)
 
     def display_page(self, sel):
-        page = self.pages[sel]
-        page.tkraise()
+        page = sel(self.window,self)
+        page.grid(row=1, column=1, sticky="nsew")
 
 
 class DashBoard(tk.Frame):
