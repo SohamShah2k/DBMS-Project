@@ -1,52 +1,57 @@
 import tkinter as tk
 from tkinter import *
 from tkinter import ttk
-from all_imports import mysql as ms
-sellsql = ms()
-sellmycursor = sellsql.mycursor
-selldb = sellsql.mydb
-
+from db_connect import mysql as ms
+from transaction import Transaction
 class Sell(tk.Frame):
     def __init__(self, window, obj):
         tk.Frame.__init__(self, window)
         menu = Frame(self)
+        self.sql = ms()
+        self.mycursor = self.sql.mycursor
+        self.db = self.sql.mydb
         l = Label(menu, text="Menu: ").pack(side=LEFT)
         bb = Button(menu,text="Buy",command = lambda: obj.display_page(obj.Buy)).pack(side = LEFT)
         bd = Button(menu, text="Dashboard", command=lambda: obj.display_page(obj.DashBoard)).pack(side = LEFT)
         bw = Button(menu, text="Watchlist", command=lambda: obj.display_page(obj.Watchlist)).pack(side = LEFT)
         menu.pack()
-        sellmycursor.execute("select user_id from users where user_name = \"{}\"".format(obj.uname))
+
+        self.mycursor.execute("select user_id from users where user_name = \"{}\"".format(obj.uname))
         stock_list = []
-        uid = sellmycursor.fetchone()[0]
+        uid = self.mycursor.fetchone()[0]
+        self.uid = uid
         #print(type(uid))
-        sellmycursor.execute("select stock_id from user_has where user_id = {}".format(uid))
+        self.mycursor.execute("select stock_id from user_has where user_id = {}".format(uid))
         sid = []
-        for i in sellmycursor.fetchall():
+        for i in self.mycursor.fetchall():
             sid.append(i[0])
         #print(sid, type(sid))
         stock_list = []
         for i in sid:
-            sellmycursor.execute("select stock_name from stocks where stock_id = {}".format(i))
-            stock_list.append(sellmycursor.fetchone()[0])
+            self.mycursor.execute("select stock_name from stocks where stock_id = {}".format(i))
+            stock_list.append(self.mycursor.fetchone()[0])
         stock_frame = Frame(self)
         l2 = Label(stock_frame, text="Select stock you want to Sell: ").pack(side=LEFT)
         stock_sel = StringVar()
-
+        p = 0
         def set_price(stock_sel):
             x = stock_sel.get()
-            sql1 = "select pps from Stocks where stock_name = \"{}\" "
-            sellmycursor.execute(sql1.format(x))
+            sql1 = "select pps,stock_id from Stocks where stock_name = \"{}\" "
+            self.mycursor.execute(sql1.format(x))
             global price
-            price = sellmycursor.fetchall()[0]
+            global stock_id
+            y = self.mycursor.fetchall()[0]
+
+            price =y[0]
+            stock_id = y[1]
             sql2 = "select quantity from user_has where stock_id = (select stock_id from stocks where stock_name = \"{}\") "
-            sellmycursor.execute(sql2.format(x))
-            qty1 = sellmycursor.fetchall()[0]
-            print()
+            self.mycursor.execute(sql2.format(x))
+            qty1 = self.mycursor.fetchall()[0]
+            #print()
             out1.delete(1.0, END)
             out1.insert(END, price)
             out2.delete(1.0, END)
             out2.insert(END, qty1)
-
         sel1 = ttk.Combobox(stock_frame, values=stock_list, textvariable=stock_sel).pack(side=LEFT)
         price_frame = Frame(self)
         selb = Button(stock_frame, text="Select", command=lambda: set_price(stock_sel)).pack(side=LEFT)
@@ -69,8 +74,15 @@ class Sell(tk.Frame):
         l5 = Label(confirm_frame, text="Total ammount: ").pack(side=LEFT)
         out3 = Text(confirm_frame, height=2, width=15)
         out3.pack(side=LEFT)
-        conbut = Button(confirm_frame, text="Total ammount",
-                        command=lambda: out3.insert(END, (price * quant.get()))).pack()
+        def x():
+            out3.delete(1.0, END)
+            out3.insert(END, ((price)* quant.get()))
+            self.sname = stock_sel.get()
+            self.pps = price
+            self.qty = quant.get()
+            self.stock_id = stock_id
+        conbut = Button(confirm_frame, text="Total ammount",command=lambda:x()).pack()
         confirm_frame.pack()
-        sell_button = Button(self, text=" BUY ", command=lambda: print(obj.uname))
+        self.type = "S"
+        sell_button = Button(self, text=" SELL ", command=lambda: Transaction(self)).pack()
         #print(obj.uname)

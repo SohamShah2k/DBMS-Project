@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #import mysql.connector
 from tkinter import *
-from all_imports import  mysql as ms
+from db_connect import  mysql as ms
 
 #mydb = mysql.connector.connect(
     #host="localhost",
