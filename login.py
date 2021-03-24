@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #import mysql.connector
 from tkinter import *
-from all_imports import  mysql as ms
+from db_connect import  mysql as ms
 
 #mydb = mysql.connector.connect(
     #host="localhost",
@@ -20,7 +20,7 @@ class login():
     def log(self,uname,password):
         try:
             lmycursor.execute('select user_name,password from users where user_name = %s and password = %s ',(uname,password))
-            unm,pwd = lmycursor.fetchall()[0]
+            #unm,pwd = lmycursor.fetchall()[0]
 
         except:
             msg = Tk()

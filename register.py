@@ -1,7 +1,6 @@
 #import mysql.connector
-from all_imports import  mysql as ms
+from db_connect import  mysql as ms
 from tkinter import *
-import login
 def log():
     r.destroy()
     userx = l.login()
